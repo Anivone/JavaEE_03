@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>Index</title>
+</head>
+<body>
+<form id="add-book-form" action="/add-book" method="post">
+    <label>
+        Title:
+        <input name="title"/>
+    </label>
+    <label>
+        ISBN:
+        <input name="isbn"/>
+    </label>
+    <label>
+        Author:
+        <input name="author"/>
+    </label>
+    <button type="submit">Add Book</button>
+</form>
+<form id="search-form" action="/books/search" method="post">
+    <label>
+        Search books:
+        <input id="search-input" name="search"/>
+    </label>
+    <button type="submit">Search</button>
+    <button type="reset">Reset</button>
+</form>
+<table>
+    <thead>
+    <th>Name</th>
+    <th>ISBN</th>
+    <th>Author</th>
+    </thead>
+    <tbody id="table-content"></tbody>
+</table>
+<script>
+    $(document).ready(() => {
+        const getBooks = () => $.ajax({
+            url: '/books',
+            type: 'GET',
+            contentType: 'application/json',
+            success: (data) => {
+                updateTable(data);
+            }
+        });
+        const createBookRow = (book) => {
+            return $(`<tr>
+                <td>${book.title}</td>
+                <td>${book.isbn}</td>
+                <td>${book.author}</td>
+              </tr>`);
+        }
+        const updateTable = (books, append) => {
+            if (!append) $('#table-content').empty();
+            if (books && !books.length) return;
+
+            books.map((book) => {
+                createBookRow(book).appendTo($('#table-content'));
+            });
+        }
+        const getFormInput = (formId, inputName) => $(`#${formId} :input[name='${inputName}']`);
+
+        const searchBooks = (searchValue) => $.ajax({
+            url: '/books/search',
+            type: 'POST',
+            data: JSON.stringify({
+                searchValue
+            }),
+            contentType: 'application/json',
+            dataType: 'json',
+            success: ((data) => {
+                updateTable(data);
+            })
+        });
+        const addBook = (book) => $.ajax({
+            url: '/books',
+            type: 'POST',
+            data: JSON.stringify({
+                ...book
+            }),
+            contentType: 'application/json',
+            dataType: 'json',
+            success: ((data) => {
+                updateTable([data], true);
+            })
+        });
+
+        getBooks();
+
+        $('#search-form').submit((e) => {
+            e.preventDefault();
+            searchBooks($('#search-input').val() || '');
+        });
+
+        $('#add-book-form').submit((e) => {
+            e.preventDefault();
+            const title = getFormInput('add-book-form', 'title').val();
+            const isbn = getFormInput('add-book-form', 'isbn').val();
+            const author = getFormInput('add-book-form', 'author').val();
+
+            addBook({title, isbn, author});
+        });
+    });
+</script>
+</body>
+</html>
