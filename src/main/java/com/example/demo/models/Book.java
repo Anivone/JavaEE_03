@@ -1,22 +1,36 @@
 package com.example.demo.models;
 
-import lombok.ToString;
+import lombok.*;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "books")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@Builder
 public class Book {
 
-    public String title;
-    public String isbn;
-    public String author;
+    @Id
+    @GeneratedValue
+    @Column(name = "id")
+    private Integer id;
 
-    public Book(String title, String isbn, String author) {
-        this.title = title;
-        this.isbn = isbn;
-        this.author = author;
-    }
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "isbn")
+    private String isbn;
+
+    @Column(name = "author")
+    private String author;
 
     @Override
     public String toString() {
         return "Book{" +
+                "id='" + id + '\'' +
                 "title='" + title + '\'' +
                 ", isbn='" + isbn + '\'' +
                 ", author='" + author + '\'' +
