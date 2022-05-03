@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.dtos.FindBookDTO;
 import com.example.demo.dtos.SearchBookDTO;
 import com.example.demo.models.Book;
 import com.example.demo.services.BookService;
@@ -43,6 +44,12 @@ public class BookController {
         List<Book> books = bookService.filterBooks(searchBook.getSearchValue());
 
         return ResponseEntity.ok(books.toArray(new Book[0]));
+    }
+
+    @RequestMapping(value = "/books/find", method = RequestMethod.POST)
+    public ResponseEntity<Book> addNewBook(@RequestBody FindBookDTO findBookDTO) {
+        Book newBook = bookService.getBookByIsbnAndAuthor(findBookDTO.getIsbn(), findBookDTO.getAuthor());
+        return ResponseEntity.ok(newBook);
     }
 
 }
